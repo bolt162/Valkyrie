@@ -8,13 +8,12 @@ services:
     runtime: python
     region: oregon
     plan: free
-    buildCommand: |
-      cd backend && pip install -r requirements.txt
-    startCommand: |
-      cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
-        value: "3.11"
+        value: "3.11.4"
       - key: OPENAI_API_KEY
         sync: false
     healthCheckPath: /health
@@ -24,9 +23,12 @@ services:
   - type: web
     name: valkyrie-app
     runtime: static
-    buildCommand: |
-      cd frontend && npm install && npm run build
-    staticPublishPath: frontend/dist
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://valkyrie-api.onrender.com
     headers:
       - path: /*
         name: Cache-Control
