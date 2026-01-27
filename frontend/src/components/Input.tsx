@@ -9,10 +9,10 @@ export const Input: React.FC<InputProps> = ({ label, error, className = '', ...p
   return (
     <div className="space-y-1">
       {label && (
-        <label className="block text-sm font-medium text-gray-300">{label}</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>
       )}
       <input
-        className={`w-full px-3 py-2 bg-[#0a0a0a] border border-[#1a1a1a] rounded-lg text-white placeholder-gray-500 focus:border-green-500 focus:ring-1 focus:ring-green-500/20 transition-colors ${className}`}
+        className={`w-full px-3 py-2 bg-white dark:bg-[#0a0a0a] border border-gray-300 dark:border-[#1a1a1a] rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-green-500 focus:ring-1 focus:ring-green-500/20 transition-colors ${className}`}
         {...props}
       />
       {error && <p className="text-sm text-red-400">{error}</p>}
@@ -36,14 +36,14 @@ export const Select: React.FC<SelectProps> = ({
   return (
     <div className="space-y-1">
       {label && (
-        <label className="block text-sm font-medium text-gray-300">{label}</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>
       )}
       <select
-        className={`w-full px-3 py-2 bg-[#0a0a0a] border border-[#1a1a1a] rounded-lg text-white focus:border-green-500 focus:ring-1 focus:ring-green-500/20 transition-colors ${className}`}
+        className={`w-full px-3 py-2 bg-white dark:bg-[#0a0a0a] border border-gray-300 dark:border-[#1a1a1a] rounded-lg text-gray-900 dark:text-white focus:border-green-500 focus:ring-1 focus:ring-green-500/20 transition-colors ${className}`}
         {...props}
       >
         {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
+          <option key={opt.value} value={opt.value} className="bg-white dark:bg-[#0a0a0a]">
             {opt.label}
           </option>
         ))}
@@ -67,10 +67,10 @@ export const Textarea: React.FC<TextareaProps> = ({
   return (
     <div className="space-y-1">
       {label && (
-        <label className="block text-sm font-medium text-gray-300">{label}</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>
       )}
       <textarea
-        className={`w-full px-3 py-2 bg-[#0a0a0a] border border-[#1a1a1a] rounded-lg text-white placeholder-gray-500 focus:border-green-500 focus:ring-1 focus:ring-green-500/20 transition-colors font-mono text-sm ${className}`}
+        className={`w-full px-3 py-2 bg-white dark:bg-[#0a0a0a] border border-gray-300 dark:border-[#1a1a1a] rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-green-500 focus:ring-1 focus:ring-green-500/20 transition-colors font-mono text-sm ${className}`}
         {...props}
       />
       {error && <p className="text-sm text-red-400">{error}</p>}

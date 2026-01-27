@@ -1,14 +1,35 @@
 @import "tailwindcss";
 
+@variant dark (&:is(.dark *));
+
+@theme {
+  --color-neon-green: #22c55e;
+  --color-neon-bright: #00ff7f;
+  --color-dark-bg: #000000;
+  --color-dark-card: #0a0a0a;
+  --color-dark-border: #1a1a1a;
+  --color-light-bg: #f9fafb;
+  --color-light-card: #ffffff;
+  --color-light-border: #e5e7eb;
+}
+
 :root {
   font-family: 'Inter', system-ui, sans-serif;
 }
 
 body {
   margin: 0;
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  /* Light mode (default) */
+  background-color: #f9fafb;
+  color: #111827;
+}
+
+/* Dark mode */
+.dark body {
   background-color: #000000;
   color: #e5e7eb;
-  min-height: 100vh;
 }
 
 #root {
@@ -64,12 +85,27 @@ input:focus, textarea:focus, select:focus {
   height: 8px;
 }
 
-::-webkit-scrollbar-track {
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-track {
   background: #0a0a0a;
 }
 
-::-webkit-scrollbar-thumb {
+.dark ::-webkit-scrollbar-thumb {
   background: #1a1a1a;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #22c55e;
+}
+
+/* Light mode scrollbar */
+::-webkit-scrollbar-track {
+  background: #f3f4f6;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
   border-radius: 4px;
 }
 

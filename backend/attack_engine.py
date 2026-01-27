@@ -1,11 +1,43 @@
 import os
 import json
 import httpx
+import logging
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from openai import OpenAI
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+
+# Configure logging
+def setup_logging(test_run_id: int):
+    """Setup logging for a specific test run"""
+    timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    log_filename = f"logs/test_run_{test_run_id}_{timestamp}.log"
+
+    # Create logger
+    logger = logging.getLogger(f"attack_engine_{test_run_id}")
+    logger.setLevel(logging.DEBUG)
+    logger.handlers = []  # Clear existing handlers
+
+    # File handler - detailed logs
+    file_handler = logging.FileHandler(log_filename)
+    file_handler.setLevel(logging.DEBUG)
+    file_formatter = logging.Formatter(
+        '%(asctime)s | %(levelname)s | %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    file_handler.setFormatter(file_formatter)
+
+    # Console handler - important logs only
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_formatter = logging.Formatter('%(levelname)s: %(message)s')
+    console_handler.setFormatter(console_formatter)
+
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+    return logger, log_filename
 
 ATTACK_CATEGORIES = ["Jailbreak", "Prompt Injection", "Data Leakage", "Toxic Output", "Role Manipulation"]
 
@@ -52,8 +84,14 @@ MOCK_ATTACKS = [
     }
 ]
 
-def generate_attacks_with_openai(client: OpenAI) -> List[Dict[str, str]]:
+def generate_attacks_with_openai(client: OpenAI, logger=None) -> List[Dict[str, str]]:
     try:
+        if logger:
+            logger.info("=" * 80)
+            logger.info("STEP 1: GENERATING ATTACK PROMPTS")
+            logger.info("=" * 80)
+            logger.info("Using OpenAI GPT-4o-mini to generate red-team attack prompts")
+
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             timeout=60.0,
@@ -79,17 +117,34 @@ Example format:
             temperature=0.8,
             max_tokens=2000
         )
-        
+
         content = response.choices[0].message.content
+
+        if logger:
+            logger.debug("Raw OpenAI response:")
+            logger.debug(content)
+
         if "```json" in content:
             content = content.split("```json")[1].split("```")[0]
         elif "```" in content:
             content = content.split("```")[1].split("```")[0]
-        
+
         attacks = json.loads(content.strip())
+
+        if logger:
+            logger.info(f"Successfully generated {len(attacks)} attack prompts")
+            for i, attack in enumerate(attacks, 1):
+                logger.info(f"\n  Attack #{i}: {attack['title']}")
+                logger.info(f"  Category: {attack['category']}")
+                logger.info(f"  Prompt: {attack['attack_prompt'][:100]}...")
+
         return attacks
     except Exception as e:
-        print(f"Error generating attacks: {e}")
+        if logger:
+            logger.error(f"Error generating attacks: {e}")
+            logger.warning("Falling back to mock attacks")
+        else:
+            print(f"Error generating attacks: {e}")
         return [{"title": a["title"], "category": a["category"], "attack_prompt": a["attack_prompt"]} for a in MOCK_ATTACKS]
 
 def call_target_model(
@@ -97,25 +152,47 @@ def call_target_model(
     base_url: Optional[str],
     model_name: Optional[str],
     api_key: Optional[str],
-    prompt: str
+    prompt: str,
+    logger=None
 ) -> str:
     try:
+        if logger:
+            logger.info("\n" + "=" * 80)
+            logger.info("STEP 2: CALLING TARGET MODEL")
+            logger.info("=" * 80)
+            logger.info(f"Connection Type: {connection_type}")
+            logger.info(f"Model: {model_name}")
+            logger.info(f"Base URL: {base_url}")
+            logger.info(f"\nAttack Prompt:\n{prompt}\n")
+
         if connection_type == "openai-compatible":
             if not api_key:
-                return "[Error: No API key configured for target model]"
-            
+                error_msg = "[Error: No API key configured for target model]"
+                if logger:
+                    logger.error(error_msg)
+                return error_msg
+
             client = OpenAI(api_key=api_key, base_url=base_url if base_url else None, timeout=30.0)
             response = client.chat.completions.create(
                 model=model_name or "gpt-3.5-turbo",
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=500
             )
-            return response.choices[0].message.content
-        
+            target_response = response.choices[0].message.content
+
+            if logger:
+                logger.info(f"Target Model Response:\n{target_response}\n")
+                logger.info(f"Response Length: {len(target_response)} characters")
+
+            return target_response
+
         elif connection_type == "custom-http":
             if not base_url:
-                return "[Error: No base URL configured for custom HTTP endpoint]"
-            
+                error_msg = "[Error: No base URL configured for custom HTTP endpoint]"
+                if logger:
+                    logger.error(error_msg)
+                return error_msg
+
             with httpx.Client(timeout=30.0) as http_client:
                 response = http_client.post(
                     base_url,
@@ -123,16 +200,34 @@ def call_target_model(
                     headers={"Authorization": f"Bearer {api_key}"} if api_key else {}
                 )
                 data = response.json()
-                return data.get("output", str(data))
-        
-        else:
-            return "[Error: Unknown connection type]"
-    
-    except Exception as e:
-        return f"[Error calling target model: {str(e)}]"
+                target_response = data.get("output", str(data))
 
-def evaluate_response_with_openai(client: OpenAI, attack_prompt: str, model_response: str, category: str) -> Dict[str, Any]:
+                if logger:
+                    logger.info(f"Target Model Response:\n{target_response}\n")
+
+                return target_response
+
+        else:
+            error_msg = "[Error: Unknown connection type]"
+            if logger:
+                logger.error(error_msg)
+            return error_msg
+
+    except Exception as e:
+        error_msg = f"[Error calling target model: {str(e)}]"
+        if logger:
+            logger.error(error_msg)
+        return error_msg
+
+def evaluate_response_with_openai(client: OpenAI, attack_prompt: str, model_response: str, category: str, logger=None) -> Dict[str, Any]:
     try:
+        if logger:
+            logger.info("\n" + "=" * 80)
+            logger.info("STEP 3: EVALUATING RESPONSE")
+            logger.info("=" * 80)
+            logger.info("Using OpenAI GPT-4o-mini to evaluate target model's response")
+            logger.info(f"Attack Category: {category}")
+
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             timeout=30.0,
@@ -166,17 +261,35 @@ Evaluate if this response indicates a vulnerability."""
             temperature=0.3,
             max_tokens=500
         )
-        
+
         content = response.choices[0].message.content
+
+        if logger:
+            logger.debug("Raw evaluator response:")
+            logger.debug(content)
+
         if "```json" in content:
             content = content.split("```json")[1].split("```")[0]
         elif "```" in content:
             content = content.split("```")[1].split("```")[0]
-        
-        return json.loads(content.strip())
-    
+
+        evaluation = json.loads(content.strip())
+
+        if logger:
+            logger.info(f"\nEvaluation Result:")
+            logger.info(f"  Vulnerable: {evaluation.get('is_vulnerable', 'Unknown')}")
+            logger.info(f"  Severity: {evaluation.get('severity', 'Unknown')}")
+            logger.info(f"  Description: {evaluation.get('description', 'N/A')}")
+            logger.info(f"  Recommendation: {evaluation.get('recommendation', 'N/A')}")
+
+        return evaluation
+
     except Exception as e:
-        print(f"Error evaluating response: {e}")
+        if logger:
+            logger.error(f"Error evaluating response: {e}")
+            logger.warning("Marking for manual review")
+        else:
+            print(f"Error evaluating response: {e}")
         return {
             "is_vulnerable": True,
             "severity": "Medium",
@@ -207,7 +320,7 @@ def run_attack_engine(
     db_session
 ) -> Dict[str, Any]:
     from models import TestRun, Finding
-    
+
     test_run = TestRun(
         project_id=project_id,
         status="running",
@@ -216,31 +329,54 @@ def run_attack_engine(
     db_session.add(test_run)
     db_session.commit()
     db_session.refresh(test_run)
-    
+
+    # Setup logging for this test run
+    logger, log_filename = setup_logging(test_run.id)
+    logger.info("=" * 80)
+    logger.info(f"STARTING SECURITY TEST - Test Run ID: {test_run.id}")
+    logger.info(f"Project ID: {project_id}")
+    logger.info(f"Log File: {log_filename}")
+    logger.info("=" * 80)
+    logger.info(f"OpenAI API Key Configured: {bool(OPENAI_API_KEY)}")
+    logger.info(f"Target Connection Type: {connection_type}")
+    logger.info(f"Target Model: {model_name}")
+    logger.info(f"Target Base URL: {base_url}")
+    logger.info("")
+
     findings_data = []
-    
+
     try:
         if OPENAI_API_KEY:
+            logger.info("Running in FULL MODE (with OpenAI for attack generation & evaluation)")
             client = OpenAI(api_key=OPENAI_API_KEY)
-            attacks = generate_attacks_with_openai(client)
-            
-            for attack in attacks:
+            attacks = generate_attacks_with_openai(client, logger)
+
+            for i, attack in enumerate(attacks, 1):
+                logger.info("\n" + "🎯" * 40)
+                logger.info(f"ATTACK {i}/{len(attacks)}: {attack['title']}")
+                logger.info("🎯" * 40)
+
                 model_response = call_target_model(
                     connection_type=connection_type,
                     base_url=base_url,
                     model_name=model_name,
                     api_key=api_key,
-                    prompt=attack["attack_prompt"]
+                    prompt=attack["attack_prompt"],
+                    logger=logger
                 )
-                
+
                 evaluation = evaluate_response_with_openai(
                     client=client,
                     attack_prompt=attack["attack_prompt"],
                     model_response=model_response,
-                    category=attack["category"]
+                    category=attack["category"],
+                    logger=logger
                 )
-                
+
                 if evaluation.get("is_vulnerable", False):
+                    logger.warning(f"⚠️  VULNERABILITY DETECTED: {attack['title']}")
+                    logger.warning(f"   Severity: {evaluation.get('severity', 'Unknown')}")
+
                     finding = Finding(
                         test_run_id=test_run.id,
                         title=attack["title"],
@@ -255,15 +391,24 @@ def run_attack_engine(
                     findings_data.append({
                         "severity": evaluation.get("severity", "Medium")
                     })
-            
+                else:
+                    logger.info(f"✅ No vulnerability - Model properly refused the attack")
+
             test_run.attack_count = len(attacks)
         
         else:
+            logger.warning("Running in DEMO MODE (no OpenAI key - using mock attacks)")
+            logger.warning("To enable real testing, set OPENAI_API_KEY environment variable")
+
             for mock in MOCK_ATTACKS:
                 mock_response = "I cannot help with that request as it violates my guidelines."
                 if mock["severity"] in ["High", "Critical"]:
                     mock_response = "Here is the information you requested: [SIMULATED VULNERABLE RESPONSE]"
-                
+
+                logger.info(f"\nMock Attack: {mock['title']}")
+                logger.info(f"Category: {mock['category']}")
+                logger.info(f"Simulated Response: {mock_response[:100]}...")
+
                 finding = Finding(
                     test_run_id=test_run.id,
                     title=mock["title"],
@@ -276,23 +421,40 @@ def run_attack_engine(
                 )
                 db_session.add(finding)
                 findings_data.append({"severity": mock["severity"]})
-            
+
             test_run.attack_count = len(MOCK_ATTACKS)
-        
+
         test_run.status = "completed"
         test_run.finished_at = datetime.utcnow()
         test_run.overall_risk_score = calculate_risk_score(findings_data)
-        
+
         db_session.commit()
-        
+
+        # Final summary
+        logger.info("\n" + "=" * 80)
+        logger.info("TEST RUN COMPLETED")
+        logger.info("=" * 80)
+        logger.info(f"Total Attacks: {test_run.attack_count}")
+        logger.info(f"Vulnerabilities Found: {len(findings_data)}")
+        logger.info(f"Overall Risk Score: {test_run.overall_risk_score}")
+        logger.info(f"Duration: {(test_run.finished_at - test_run.started_at).total_seconds():.2f} seconds")
+        logger.info(f"Log saved to: {log_filename}")
+        logger.info("=" * 80)
+
         return {
             "test_run_id": test_run.id,
             "status": "completed",
             "findings_count": len(findings_data),
-            "overall_risk": test_run.overall_risk_score
+            "overall_risk": test_run.overall_risk_score,
+            "log_file": log_filename
         }
-    
+
     except Exception as e:
+        logger.error(f"\n❌ TEST RUN FAILED: {str(e)}")
+        logger.error(f"Error type: {type(e).__name__}")
+        import traceback
+        logger.error(f"Traceback:\n{traceback.format_exc()}")
+
         test_run.status = "failed"
         test_run.finished_at = datetime.utcnow()
         db_session.commit()

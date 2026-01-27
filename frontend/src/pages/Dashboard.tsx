@@ -39,14 +39,14 @@ export const Dashboard: React.FC = () => {
       key: 'project_name',
       header: 'Project',
       render: (run: TestRun) => (
-        <span className="font-mono text-white">{run.project_name || 'Unknown'}</span>
+        <span className="font-mono text-gray-900 dark:text-white">{run.project_name || 'Unknown'}</span>
       ),
     },
     {
       key: 'started_at',
       header: 'Run Date',
       render: (run: TestRun) => (
-        <span className="text-gray-400">
+        <span className="text-gray-600 dark:text-gray-400">
           {new Date(run.started_at).toLocaleDateString()}
         </span>
       ),
@@ -86,8 +86,8 @@ export const Dashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-mono font-bold text-white">Dashboard</h1>
-        <p className="text-gray-400 mt-1">Security overview and recent activity</p>
+        <h1 className="text-2xl font-mono font-bold text-gray-900 dark:text-white">Dashboard</h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">Security overview and recent activity</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -120,7 +120,7 @@ export const Dashboard: React.FC = () => {
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <Card>
-            <h2 className="text-lg font-mono font-semibold text-green-500 mb-4">
+            <h2 className="text-lg font-mono font-semibold text-green-600 dark:text-green-500 mb-4">
               Recent Test Runs
             </h2>
             <Table
@@ -134,7 +134,7 @@ export const Dashboard: React.FC = () => {
 
         <div>
           <Card>
-            <h2 className="text-lg font-mono font-semibold text-green-500 mb-4">
+            <h2 className="text-lg font-mono font-semibold text-green-600 dark:text-green-500 mb-4">
               Vulnerabilities by Severity
             </h2>
             <div className="space-y-3">
@@ -142,10 +142,10 @@ export const Dashboard: React.FC = () => {
                 <>
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="text-red-400">Critical</span>
-                      <span className="text-gray-400 font-mono">{vulnSummary.critical}</span>
+                      <span className="text-red-500 dark:text-red-400">Critical</span>
+                      <span className="text-gray-600 dark:text-gray-400 font-mono">{vulnSummary.critical}</span>
                     </div>
-                    <div className="h-3 bg-[#1a1a1a] rounded-full overflow-hidden">
+                    <div className="h-3 bg-gray-200 dark:bg-[#1a1a1a] rounded-full overflow-hidden">
                       <div
                         className="h-full bg-red-500 rounded-full transition-all duration-500"
                         style={{ width: `${(vulnSummary.critical / maxVuln) * 100}%` }}
@@ -154,10 +154,10 @@ export const Dashboard: React.FC = () => {
                   </div>
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="text-orange-400">High</span>
-                      <span className="text-gray-400 font-mono">{vulnSummary.high}</span>
+                      <span className="text-orange-500 dark:text-orange-400">High</span>
+                      <span className="text-gray-600 dark:text-gray-400 font-mono">{vulnSummary.high}</span>
                     </div>
-                    <div className="h-3 bg-[#1a1a1a] rounded-full overflow-hidden">
+                    <div className="h-3 bg-gray-200 dark:bg-[#1a1a1a] rounded-full overflow-hidden">
                       <div
                         className="h-full bg-orange-500 rounded-full transition-all duration-500"
                         style={{ width: `${(vulnSummary.high / maxVuln) * 100}%` }}
@@ -166,10 +166,10 @@ export const Dashboard: React.FC = () => {
                   </div>
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="text-yellow-400">Medium</span>
-                      <span className="text-gray-400 font-mono">{vulnSummary.medium}</span>
+                      <span className="text-yellow-500 dark:text-yellow-400">Medium</span>
+                      <span className="text-gray-600 dark:text-gray-400 font-mono">{vulnSummary.medium}</span>
                     </div>
-                    <div className="h-3 bg-[#1a1a1a] rounded-full overflow-hidden">
+                    <div className="h-3 bg-gray-200 dark:bg-[#1a1a1a] rounded-full overflow-hidden">
                       <div
                         className="h-full bg-yellow-500 rounded-full transition-all duration-500"
                         style={{ width: `${(vulnSummary.medium / maxVuln) * 100}%` }}
@@ -178,10 +178,10 @@ export const Dashboard: React.FC = () => {
                   </div>
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="text-green-400">Low</span>
-                      <span className="text-gray-400 font-mono">{vulnSummary.low}</span>
+                      <span className="text-green-500 dark:text-green-400">Low</span>
+                      <span className="text-gray-600 dark:text-gray-400 font-mono">{vulnSummary.low}</span>
                     </div>
-                    <div className="h-3 bg-[#1a1a1a] rounded-full overflow-hidden">
+                    <div className="h-3 bg-gray-200 dark:bg-[#1a1a1a] rounded-full overflow-hidden">
                       <div
                         className="h-full bg-green-500 rounded-full transition-all duration-500"
                         style={{ width: `${(vulnSummary.low / maxVuln) * 100}%` }}

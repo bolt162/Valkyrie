@@ -69,18 +69,18 @@ export const Projects: React.FC = () => {
     {
       key: 'name',
       header: 'Project Name',
-      render: (p: Project) => <span className="font-mono text-white">{p.name}</span>,
+      render: (p: Project) => <span className="font-mono text-gray-900 dark:text-white">{p.name}</span>,
     },
     {
       key: 'model_provider',
       header: 'Provider',
-      render: (p: Project) => <span className="text-gray-400">{p.model_provider}</span>,
+      render: (p: Project) => <span className="text-gray-600 dark:text-gray-400">{p.model_provider}</span>,
     },
     {
       key: 'connection_type',
       header: 'Connection',
       render: (p: Project) => (
-        <span className="text-gray-400 text-xs font-mono">
+        <span className="text-gray-600 dark:text-gray-400 text-xs font-mono">
           {p.connection_type === 'openai-compatible' ? 'OpenAI API' : 'Custom HTTP'}
         </span>
       ),
@@ -96,14 +96,14 @@ export const Projects: React.FC = () => {
       key: 'test_run_count',
       header: 'Test Runs',
       render: (p: Project) => (
-        <span className="text-gray-400 font-mono">{p.test_run_count}</span>
+        <span className="text-gray-600 dark:text-gray-400 font-mono">{p.test_run_count}</span>
       ),
     },
     {
       key: 'last_test_date',
       header: 'Last Test',
       render: (p: Project) => (
-        <span className="text-gray-400 text-sm">
+        <span className="text-gray-600 dark:text-gray-400 text-sm">
           {p.last_test_date ? new Date(p.last_test_date).toLocaleDateString() : 'Never'}
         </span>
       ),
@@ -113,7 +113,7 @@ export const Projects: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-green-500 font-mono animate-pulse">Loading projects...</div>
+        <div className="text-green-600 dark:text-green-500 font-mono animate-pulse">Loading projects...</div>
       </div>
     );
   }
@@ -122,8 +122,8 @@ export const Projects: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-mono font-bold text-white">Projects</h1>
-          <p className="text-gray-400 mt-1">Manage your LLM security testing projects</p>
+          <h1 className="text-2xl font-mono font-bold text-gray-900 dark:text-white">Projects</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">Manage your LLM security testing projects</p>
         </div>
         <Button onClick={() => setModalOpen(true)}>
           <Plus size={18} />

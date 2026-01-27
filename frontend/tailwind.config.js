@@ -4,6 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -12,6 +13,9 @@ export default {
         'dark-bg': '#000000',
         'dark-card': '#0a0a0a',
         'dark-border': '#1a1a1a',
+        'light-bg': '#f9fafb',
+        'light-card': '#ffffff',
+        'light-border': '#e5e7eb',
       },
       fontFamily: {
         'mono': ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],

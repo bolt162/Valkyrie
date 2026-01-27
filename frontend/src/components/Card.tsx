@@ -9,8 +9,8 @@ interface CardProps {
 export const Card: React.FC<CardProps> = ({ children, className = '', glow = false }) => {
   return (
     <div
-      className={`bg-[#0a0a0a] border border-[#1a1a1a] rounded-lg p-4 ${
-        glow ? 'glow-green border-green-500/30' : ''
+      className={`bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#1a1a1a] rounded-lg p-4 transition-colors duration-300 ${
+        glow ? 'dark:glow-green border-green-500/30' : ''
       } ${className}`}
     >
       {children}
@@ -40,12 +40,12 @@ export const StatCard: React.FC<StatCardProps> = ({
 }) => {
   return (
     <div
-      className={`bg-[#0a0a0a] border border-[#1a1a1a] rounded-lg p-4 border-l-4 ${accentColors[accentColor]}`}
+      className={`bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#1a1a1a] rounded-lg p-4 border-l-4 transition-colors duration-300 ${accentColors[accentColor]}`}
     >
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-gray-400 text-sm">{title}</p>
-          <p className="text-2xl font-mono font-bold text-white mt-1">{value}</p>
+          <p className="text-gray-600 dark:text-gray-400 text-sm">{title}</p>
+          <p className="text-2xl font-mono font-bold text-gray-900 dark:text-white mt-1">{value}</p>
         </div>
         {icon && <div className="text-green-500">{icon}</div>}
       </div>
