@@ -24,7 +24,6 @@ services:
   - type: web
     name: valkyrie-app
     runtime: static
-    plan: free
     buildCommand: |
       cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist
