@@ -18,8 +18,8 @@ import { useTheme } from '../contexts/ThemeContext';
 
 const navItems = [
   { path: '/app/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/app/projects', label: 'Projects', icon: FolderKanban },
-  { path: '/app/api-testing', label: 'API Testing', icon: Lock },
+  // { path: '/app/projects', label: 'Projects', icon: FolderKanban },
+  { path: '/app/api-testing', label: 'Tests', icon: Lock },
   { path: '/app/monitoring', label: 'Monitoring', icon: Activity },
   { path: '/app/reports', label: 'Reports', icon: FileText },
   { path: '/app/settings', label: 'Settings', icon: Settings },

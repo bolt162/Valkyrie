@@ -20,13 +20,16 @@ export const APITesting: React.FC = () => {
     running: 0,
   });
 
+  // Poll every 5s unconditionally — avoids stale closure bugs
   useEffect(() => {
-    loadTests();
-  }, []);
+    loadTests(true);
+    const interval = setInterval(() => loadTests(false), 5000);
+    return () => clearInterval(interval);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const loadTests = async () => {
+  const loadTests = async (showLoading = true) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       const data = await apiTestService.listTests();
       setTests(data);
 
@@ -61,11 +64,8 @@ export const APITesting: React.FC = () => {
   const handleRunTest = async (testId: number) => {
     try {
       await apiTestService.runTest(testId);
-      // Reload tests to show updated status
+      // Immediate refresh to show "running" status; continuous polling handles the rest
       setTimeout(() => loadTests(), 1000);
-      // Poll for updates every 5 seconds
-      const interval = setInterval(() => loadTests(), 5000);
-      setTimeout(() => clearInterval(interval), 60000); // Stop after 1 minute
     } catch (error) {
       console.error('Failed to run test:', error);
       alert('Failed to run test');

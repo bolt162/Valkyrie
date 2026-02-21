@@ -41,13 +41,9 @@ XSS_DETECT_SCHEMA = {
 
 # Known pages/endpoints that typically have injectable forms
 SEARCH_INDICATORS = ["search", "q=", "query", "find"]
-FORM_PAGES = [
-    # Home page search is already covered by _test_search_xss — skip it
-    {"path": "/#/contact", "description": "Contact/Feedback form", "field_hint": "comment"},
-]
 
-# Max rtrvr calls to keep total XSS time reasonable (~6 min max)
-MAX_RTRVR_CALLS = 3
+# Max rtrvr calls — 2 calls × ~2 min each = ~4 min total
+MAX_RTRVR_CALLS = 2
 
 
 class XSSEngine:
@@ -69,11 +65,10 @@ class XSSEngine:
         """
         Run XSS tests using rtrvr browser agent.
 
-        Strategy: 1 payload per target, max 3 rtrvr calls total (~6 min).
-        Tests 3 distinct attack surfaces:
-          1. Search bar (DOM interaction)
-          2. URL parameter injection (direct URL)
-          3. Contact/feedback form (form submission)
+        Strategy: 1 payload per target, max 2 rtrvr calls total (~4 min).
+        Tests 2 distinct attack surfaces:
+          1. Search bar (DOM interaction via browser)
+          2. URL parameter injection (direct URL navigation)
 
         Each rtrvr call is a focused, single-action task for speed.
         """
@@ -89,6 +84,9 @@ class XSSEngine:
         endpoints = endpoints or []
         self._rtrvr_calls = 0
 
+        # Debug: log received endpoints so we can diagnose filtering issues
+        self.logger.info(f"  Received {len(endpoints)} endpoints: {endpoints}")
+
         # 1. Test search bar on the main page (most common XSS vector)
         self._test_search_xss()
 
@@ -98,20 +96,11 @@ class XSSEngine:
                 ep for ep in endpoints
                 if any(indicator in ep.lower() for indicator in SEARCH_INDICATORS)
             ]
+            self.logger.info(f"  Search endpoints matched: {search_endpoints}")
             if search_endpoints:
                 self._test_url_param_xss(search_endpoints[0])
-
-        # 3. Test contact/feedback form (different attack surface than search)
-        if not self._budget_exhausted():
-            for form_page in FORM_PAGES:
-                if self._budget_exhausted():
-                    break
-                page_url = self.target_url + form_page["path"]
-                self._test_page_form_xss(
-                    page_url,
-                    form_page["description"],
-                    form_page["field_hint"],
-                )
+            else:
+                self.logger.info("  No search endpoints found in endpoint list — skipping URL param test")
 
         self.logger.info("=" * 80)
         self.logger.info(f"XSS testing complete. {self._rtrvr_calls} rtrvr calls used, {len(self.vulnerabilities)} vulnerabilities found")
@@ -284,31 +273,6 @@ class XSSEngine:
         result = self._call_rtrvr(task, test_url)
         self._check_xss_result(result, marker, payload_info,
                                 test_url, f"URL param ({endpoint})", "GET")
-
-    def _test_page_form_xss(self, page_url: str, description: str, field_hint: str) -> None:
-        """Test a specific page's form for XSS. Single rtrvr call."""
-        self.logger.info(f"\n[XSS - FORM] Testing {description} at {page_url}")
-
-        marker = uuid.uuid4().hex[:8]
-        payload_info = _make_payload(marker)
-        payload = payload_info["payload"]
-        self.logger.info(f"  Payload: {payload_info['name']}")
-
-        task = (
-            f"Go to {page_url}. "
-            f"Find any input field (look for one related to '{field_hint}'). "
-            f"Type this into it: {payload} "
-            f"Submit the form (click submit/send button or press Enter). "
-            f"After the page loads, report: "
-            f"1) The page title "
-            f"2) Whether 'VALKYRIE_XSS_{marker}' appears in the page "
-            f"3) The surrounding text if found"
-        )
-
-        self._rtrvr_calls += 1
-        result = self._call_rtrvr(task, page_url)
-        self._check_xss_result(result, marker, payload_info,
-                                page_url, description, "POST")
 
     def add_vulnerability(self, vuln: Dict) -> None:
         self.vulnerabilities.append(vuln)

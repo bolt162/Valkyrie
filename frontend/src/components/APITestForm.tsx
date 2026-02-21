@@ -32,7 +32,7 @@ export const APITestForm: React.FC<APITestFormProps> = ({ onSubmit, onCancel }) 
       password: '',
     },
     endpoints: [''],
-    test_types: ['sqli', 'xss', 'jwt', 'bola', 'auth', 'rate_limit', 'mass_assignment', 'unauth', 'fuzzing', 'ai_testing', 'network'],
+    test_types: ['sqli', 'xss', 'auth', 'rate_limit'],
   });
 
   useEffect(() => {
@@ -138,8 +138,8 @@ export const APITestForm: React.FC<APITestFormProps> = ({ onSubmit, onCancel }) 
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Project Selection */}
-      <div>
+      {/* Project Selection — hidden for hackathon, auto-selects first project */}
+      {/* <div>
         <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
           Project
         </label>
@@ -155,7 +155,7 @@ export const APITestForm: React.FC<APITestFormProps> = ({ onSubmit, onCancel }) 
             </option>
           ))}
         </select>
-      </div>
+      </div> */}
 
       {/* Test Name */}
       <Input
@@ -191,7 +191,7 @@ export const APITestForm: React.FC<APITestFormProps> = ({ onSubmit, onCancel }) 
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-              🤖 Auto-Discover Endpoints (AI-Powered)
+              Auto-Discover Endpoints (AI-Powered)
             </>
           )}
         </button>
@@ -338,15 +338,15 @@ export const APITestForm: React.FC<APITestFormProps> = ({ onSubmit, onCancel }) 
           {[
             { value: 'sqli', label: 'SQL Injection', desc: 'Login bypass, search injection, error-based and union-based detection' },
             { value: 'xss', label: 'XSS Testing (rtrvr.ai)', desc: 'Cross-site scripting detection using real browser DOM execution' },
-            { value: 'unauth', label: 'Unauthenticated Tests', desc: 'Security headers, CORS, exposed files, cookies' },
-            { value: 'fuzzing', label: 'Smart Fuzzing & Discovery', desc: 'Directory fuzzing, admin panels, cloud storage, backup files' },
-            { value: 'ai_testing', label: 'AI-Powered Smart Testing', desc: 'Endpoint prediction, behavioral analysis, context-aware payloads' },
-            { value: 'network', label: 'Network-Level Testing', desc: 'Port scanning, service detection, WAF/CDN identification, SSL/TLS analysis' },
-            { value: 'jwt', label: 'JWT Vulnerabilities', desc: 'None algorithm, weak secrets, missing expiration' },
-            { value: 'bola', label: 'BOLA/IDOR', desc: 'Broken Object Level Authorization' },
             { value: 'auth', label: 'Authentication', desc: 'Missing auth, invalid tokens' },
             { value: 'rate_limit', label: 'Rate Limiting', desc: 'DoS protection' },
-            { value: 'mass_assignment', label: 'Mass Assignment', desc: 'Unauthorized field modification' },
+            // { value: 'unauth', label: 'Unauthenticated Tests', desc: 'Security headers, CORS, exposed files, cookies' },
+            // { value: 'fuzzing', label: 'Smart Fuzzing & Discovery', desc: 'Directory fuzzing, admin panels, cloud storage, backup files' },
+            // { value: 'ai_testing', label: 'AI-Powered Smart Testing', desc: 'Endpoint prediction, behavioral analysis, context-aware payloads' },
+            // { value: 'network', label: 'Network-Level Testing', desc: 'Port scanning, service detection, WAF/CDN identification, SSL/TLS analysis' },
+            // { value: 'jwt', label: 'JWT Vulnerabilities', desc: 'None algorithm, weak secrets, missing expiration' },
+            // { value: 'bola', label: 'BOLA/IDOR', desc: 'Broken Object Level Authorization' },
+            // { value: 'mass_assignment', label: 'Mass Assignment', desc: 'Unauthorized field modification' },
           ].map(test => (
             <label
               key={test.value}

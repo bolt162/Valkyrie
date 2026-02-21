@@ -460,6 +460,8 @@ def create_api_test(test: ApiSecurityTestCreate, db: Session = Depends(get_db)):
 @app.get("/api-tests", response_model=List[ApiSecurityTestResponse])
 def list_api_tests(project_id: Optional[int] = None, db: Session = Depends(get_db)):
     """List all API security tests, optionally filtered by project"""
+    # Force fresh read from DB — background thread may have updated status
+    db.expire_all()
     query = db.query(ApiSecurityTest)
 
     if project_id:
