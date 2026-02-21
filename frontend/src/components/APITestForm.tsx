@@ -32,7 +32,7 @@ export const APITestForm: React.FC<APITestFormProps> = ({ onSubmit, onCancel }) 
       password: '',
     },
     endpoints: [''],
-    test_types: ['jwt', 'bola', 'auth', 'rate_limit', 'mass_assignment', 'unauth', 'fuzzing', 'ai_testing', 'network'],
+    test_types: ['sqli', 'xss', 'jwt', 'bola', 'auth', 'rate_limit', 'mass_assignment', 'unauth', 'fuzzing', 'ai_testing', 'network'],
   });
 
   useEffect(() => {
@@ -336,10 +336,12 @@ export const APITestForm: React.FC<APITestFormProps> = ({ onSubmit, onCancel }) 
         </label>
         <div className="space-y-2">
           {[
+            { value: 'sqli', label: 'SQL Injection', desc: 'Login bypass, search injection, error-based and union-based detection' },
+            { value: 'xss', label: 'XSS Testing (rtrvr.ai)', desc: 'Cross-site scripting detection using real browser DOM execution' },
             { value: 'unauth', label: 'Unauthenticated Tests', desc: 'Security headers, CORS, exposed files, cookies' },
             { value: 'fuzzing', label: 'Smart Fuzzing & Discovery', desc: 'Directory fuzzing, admin panels, cloud storage, backup files' },
-            { value: 'ai_testing', label: 'AI-Powered Smart Testing 🤖', desc: 'Endpoint prediction, behavioral analysis, context-aware payloads' },
-            { value: 'network', label: 'Network-Level Testing 🔍', desc: 'Port scanning, service detection, WAF/CDN identification, SSL/TLS analysis' },
+            { value: 'ai_testing', label: 'AI-Powered Smart Testing', desc: 'Endpoint prediction, behavioral analysis, context-aware payloads' },
+            { value: 'network', label: 'Network-Level Testing', desc: 'Port scanning, service detection, WAF/CDN identification, SSL/TLS analysis' },
             { value: 'jwt', label: 'JWT Vulnerabilities', desc: 'None algorithm, weak secrets, missing expiration' },
             { value: 'bola', label: 'BOLA/IDOR', desc: 'Broken Object Level Authorization' },
             { value: 'auth', label: 'Authentication', desc: 'Missing auth, invalid tokens' },

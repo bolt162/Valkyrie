@@ -16,6 +16,8 @@ from unauth_vuln_engine import UnauthVulnerabilityEngine
 from fuzzing_engine import FuzzingEngine
 from ai_testing_engine import AITestingEngine
 from network_testing_engine import NetworkTestingEngine
+from sqli_engine import SQLInjectionEngine
+from xss_engine import XSSEngine
 from testing_utils import should_skip_auth_test, is_public_endpoint, get_endpoint_classification
 
 class ApiSecurityEngine:
@@ -121,6 +123,30 @@ class ApiSecurityEngine:
 
             self.logger.info(f"\nFound {len(network_results['open_ports'])} open ports")
             self.logger.info(f"Service info: {network_results['service_info']}")
+
+        # Run SQL injection tests
+        if 'sqli' in test_types or 'all' in test_types:
+            self.logger.info("\n" + "="*60)
+            self.logger.info("RUNNING SQL INJECTION TESTS")
+            self.logger.info("="*60)
+
+            sqli_engine = SQLInjectionEngine(self.target_url, self.logger)
+            sqli_vulns = sqli_engine.run_all_tests(endpoints=endpoints)
+            self.vulnerabilities.extend(sqli_vulns)
+
+            self.logger.info(f"\nSQL injection tests found {len(sqli_vulns)} vulnerabilities")
+
+        # Run XSS testing via browser (rtrvr.ai)
+        if 'xss' in test_types or 'all' in test_types:
+            self.logger.info("\n" + "="*60)
+            self.logger.info("RUNNING XSS TESTING (rtrvr.ai Browser Agent)")
+            self.logger.info("="*60)
+
+            xss_engine = XSSEngine(self.target_url, self.logger)
+            xss_vulns = xss_engine.run_all_tests(endpoints=endpoints)
+            self.vulnerabilities.extend(xss_vulns)
+
+            self.logger.info(f"\nXSS testing found {len(xss_vulns)} vulnerabilities")
 
         auth_headers = self.setup_authentication()
 

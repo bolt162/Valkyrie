@@ -204,6 +204,25 @@ class ApiDiscoveryEngine:
             '/webservice',
             '/ws',
             '/service',
+            # OWASP Juice Shop / Node.js REST API patterns
+            '/rest/user/login',
+            '/rest/user/whoami',
+            '/rest/user/change-password',
+            '/rest/products/search',
+            '/rest/saveLoginIp',
+            '/rest/basket',
+            '/rest/wallet/balance',
+            '/api/Users',
+            '/api/Products',
+            '/api/Feedbacks',
+            '/api/Challenges',
+            '/api/Complaints',
+            '/api/Recycles',
+            '/api/SecurityQuestions',
+            '/api/SecurityAnswers',
+            '/api/Cards',
+            '/api/Addresss',
+            '/api/Quantitys',
         ]
 
         for path in common_paths:
