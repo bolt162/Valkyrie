@@ -51,6 +51,13 @@ yarn-error.log*
 # Vite
 dist/
 .cache/
+context.md
+DEPLOY.md
+LIGHT_MODE_GUIDE.md
+LOGO.md
+replit.md
+rtrvr.md
+RUN.md
 
 # TypeScript
 *.tsbuildinfo
