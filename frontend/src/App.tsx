@@ -14,6 +14,15 @@ import { APITesting } from './pages/APITesting';
 import { APITestDetail } from './pages/APITestDetail';
 import { Monitoring } from './pages/Monitoring';
 
+// Route guard: redirect to /login if not authenticated
+const RequireAuth = ({ children }: { children: React.ReactElement }) => {
+  const isAuthenticated = localStorage.getItem('valkyrie_authenticated') === 'true';
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
 function App() {
   return (
     <ThemeProvider>
@@ -21,7 +30,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/app" element={<AppLayout />}>
+          <Route path="/app" element={<RequireAuth><AppLayout /></RequireAuth>}>
             <Route index element={<Navigate to="/app/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="projects" element={<Projects />} />

@@ -93,11 +93,6 @@ export const Landing: React.FC = () => {
                 <ChevronRight size={18} />
               </Button>
             </Link>
-            <Link to="/app/dashboard">
-              <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                View Demo
-              </Button>
-            </Link>
           </div>
         </div>
 

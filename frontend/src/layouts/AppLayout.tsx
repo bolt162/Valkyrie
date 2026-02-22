@@ -32,6 +32,7 @@ export const AppLayout: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
 
   const handleLogout = () => {
+    localStorage.removeItem('valkyrie_authenticated');
     navigate('/login');
   };
 

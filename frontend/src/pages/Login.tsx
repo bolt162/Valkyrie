@@ -10,10 +10,16 @@ export const Login: React.FC = () => {
   const { theme } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate('/app/dashboard');
+    if (email === 'ksap@valkyrie.ai' && password === 'eq2(C3G;QE62') {
+      localStorage.setItem('valkyrie_authenticated', 'true');
+      navigate('/app/dashboard');
+    } else {
+      setError('Invalid email or password');
+    }
   };
 
   return (
@@ -37,12 +43,19 @@ export const Login: React.FC = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-500 text-sm text-center">
+                {error}
+              </div>
+            )}
+
             <Input
               label="Email"
               type="email"
               placeholder="security@company.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); setError(''); }}
+              required
             />
 
             <Input
@@ -50,7 +63,8 @@ export const Login: React.FC = () => {
               type="password"
               placeholder="Enter your password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => { setPassword(e.target.value); setError(''); }}
+              required
             />
 
             <Button type="submit" className="w-full mt-6">
@@ -69,7 +83,7 @@ export const Login: React.FC = () => {
         </div>
 
         <p className="text-center text-gray-500 dark:text-gray-500 text-xs mt-4">
-          Demo mode: Click Sign In to access the dashboard
+          Authorized personnel only
         </p>
       </div>
     </div>
